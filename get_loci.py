@@ -40,10 +40,10 @@ def main(args):
     flag = False
     for key, value in lookup.items():
         if value is None:
-            if flag:
+            if not flag:
                 print("The following IDs were unmapped:", file=sys.stderr)
                 flag = True
-            print(key, sep='\n')
+            print(key, sep='\n', file=sys.stderr)
 
     # Output tab separated table of loci
     if args.head:
