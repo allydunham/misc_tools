@@ -25,7 +25,7 @@ def main(args):
 
     # Split vcf records
     with fileinput.input(args.vcf) as vcf_file:
-        file_count = 0
+        file_count = 1
         path = '/'.join(args.out.split('/')[-1])
         os.makedirs(path, exist_ok=True)
         outfile = open(''.join((args.out, '.', str(file_count), '.vcf')), mode='w')

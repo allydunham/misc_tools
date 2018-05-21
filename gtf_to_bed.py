@@ -23,8 +23,12 @@ def main(args):
                 # Filter lines not containing genes
                 if not args.gene or line[2] == 'gene':
                     # extract additional data
-                    dat = [x.strip().split() for x in line[-1].strip().split(';')[:-1]]
-                    data = {key:value.strip('"') for key, value in dat}
+                    data = [x.strip().split() for x in line[-1].strip().split(';')[:-1]]
+                    data = {key:value.strip('"') for key, value in data}
+
+                    # Filter Pseudogenes
+                    if args.gene and data['gene_biotype'] == 'pseudogene':
+                        continue
 
                     # Extract score
                     if args.name:
