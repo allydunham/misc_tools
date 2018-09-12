@@ -54,7 +54,6 @@ class RestClient:
                 self.rest(request, header, data)
             else:
                 response.raise_for_status()
-                return -1
 
         return response
 
