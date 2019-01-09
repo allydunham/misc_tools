@@ -7,7 +7,7 @@ import io
 from contextlib import contextmanager
 
 @contextmanager
-def open_file(path, mode='w'):
+def smart_open(path, mode='w'):
     """Context manager managing a specified file (via a path or file_object) or sys.stdout"""
     close = False
     if not path:
