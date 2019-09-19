@@ -12,8 +12,8 @@
 
 ## Config ##
 project_name="Project"
-local=$HOME/test
-remotes=(/remote/dir/1 remote/dir/2)
+local_dir=$HOME/phd/test
+remote_dirs=( ebi:/nfs/research1/beltrao/ally/test ebi:/hps/research1/beltrao/ally/test )
 folders=( "data" "meta" "figures" "test" )
 
 ## Colours for printf ##
@@ -23,34 +23,27 @@ bold=$(tput bold)
 normal=$(tput sgr0)
 
 ## Check for presence of include/exclude files ##
+rsync_options=( -a -u -h )
+
 if [ -e "$HOME/.rsync_exclude" ]; then
-   global_exclude="--exclude-from $HOME/.rsync_exclude"
-else
-   global_exclude=""
+   rsync_options+=( --exclude-from "$HOME/.rsync_exclude" )
 fi
 
-if [ -e "$local/.rsync_exclude" ]; then
-   local_exclude="--exclude-from $local/.rsync_exclude"
-else
-   local_exclude=""
-fi
-
-if [ -e "$local/.rsync_include" ]; then
-   local_include="--include-from $local/.rsync_include --exclude='*'"
-   local_exclude=""
-else
-   local_include=""
+if [ -e "$local_dir/.rsync_include" ]; then
+   rsync_options+=( --include-from "$local_dir/.rsync_include" --exclude"="'*')
+elif [ -e "$local_dir/.rsync_exclude" ]; then
+   rsync_options+=( --exclude-from "$local_dir/.rsync_exclude" )
 fi
 
 ## Sync function ##
 syncr () {
-   rsync -vauh "$global_exclude" "$local_exclude" "$local_include" --dry-run "$1" "$2"
+   rsync -v --dry-run "${rsync_options[@]}" "$1" "$2"
 
    read -p "Transfer? " -n 1 -r
    echo
    if [[ $REPLY =~ ^[Yy]$ ]]
    then
-      sync -auh "$global_exclude" "$local_exclude" "$local_include" "$1" "$2"
+      rsync "${rsync_options[@]}" "$1" "$2"
    fi
 }
 
@@ -61,15 +54,15 @@ fi
 
 ## Perform sync ##
 printf "%s\n" "${magenta}${bold}Rsyncing $project_name${normal}"
-for r in "${remotes[@]}"; do
+for r in "${remote_dirs[@]}"; do
    read -p "Sync to remote: $r? " -n 1 -r
    echo
    if [[ $REPLY =~ ^[Yy]$ ]]; then
       for f in "${folders[@]}"; do
          printf "\n%s\n%s\n" "${green}${bold}Folder: $f${normal}" "${green}Local -> Remote${normal}"
-         syncr "$local/$f/" "$r/$f"
+         syncr "$local_dir/$f/" "$r/$f"
          printf "\n%s\n" "${green}Local <- Remote${normal}"
-         syncr "$r/$f/" "$local/$f"
+         syncr "$r/$f/" "$local_dir/$f"
       done
    fi
 done
